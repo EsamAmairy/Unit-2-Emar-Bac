@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Unit 2 Practice – أ. عصام عمايري</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Readex+Pro:wght@400;600&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e5e9f1;
+  --hi:#f9fbff;
+  --lo:#bcc5d6;
+  --ink:#232d4b;
+  --muted:#5c6786;
+  --accent:#3a4fc9;
+  --ok:#14915f;
+  --bad:#d23a56;
+  --r-xl:30px;
+  --r-lg:24px;
+  --r-md:18px;
+  --r-sm:13px;
+  --raise:9px 9px 20px var(--lo), -9px -9px 20px var(--hi);
+  --raise-s:5px 5px 11px var(--lo), -5px -5px 11px var(--hi);
+  --press:inset 5px 5px 10px var(--lo), inset -5px -5px 10px var(--hi);
+  --wm:rgba(35,45,75,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Lexend','Readex Pro',system-ui,-apple-system,'Segoe UI',Tahoma,sans-serif;
+  background:var(--bg);color:var(--ink);line-height:1.6;min-height:100vh;
+  padding:max(20px,env(safe-area-inset-top)) 14px calc(48px + env(safe-area-inset-bottom));
+}
+.wrap{max-width:1100px;margin:0 auto}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+
+/* Header card */
+.top{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:26px 22px;border-radius:var(--r-xl);box-shadow:var(--raise);margin-bottom:26px;
+}
+.top h1{font-size:1.75rem;line-height:1.22;font-weight:700;letter-spacing:-.015em}
+.top p{margin-top:12px;color:var(--muted);font-size:.95rem;font-weight:300}
+.top .done{margin-top:12px;font-weight:500;font-size:.95rem}
+.dial{
+  position:relative;flex:none;width:110px;height:110px;border-radius:50%;
+  box-shadow:var(--raise-s);display:grid;place-items:center;
+}
+.dial::before{content:"";position:absolute;inset:11px;border-radius:50%;box-shadow:var(--press)}
+.dial svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.dial .trk{fill:none;stroke:var(--lo);stroke-opacity:.5;stroke-width:6}
+.dial .bar{fill:none;stroke:var(--accent);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .5s ease}
+.dial div{position:relative;text-align:center;line-height:1.1}
+.dial b{display:block;font-size:1.9rem;font-weight:700}
+.dial small{font-size:.72rem;color:var(--muted)}
+
+/* Tabs */
+.tabs{
+  display:flex;gap:12px;overflow-x:auto;padding:12px;margin-bottom:26px;
+  border-radius:var(--r-lg);box-shadow:var(--press);scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:none;border:0;cursor:pointer;background:var(--bg);border-radius:var(--r-md);
+  padding:11px 20px;font-size:.95rem;font-weight:500;color:var(--muted);white-space:nowrap;
+  box-shadow:var(--raise-s);transition:box-shadow .2s,color .2s;
+}
+.tab span{margin-left:8px;font-size:.8rem;font-weight:500}
+.tab[aria-selected="true"]{color:var(--accent);box-shadow:var(--press)}
+
+/* Panel toolbar */
+.panel[hidden]{display:none}
+.bar-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:24px;padding:0 4px}
+.bar-row .hint{flex:1 1 280px;color:var(--muted);font-size:.95rem;font-weight:300}
+.chip,.btn{
+  border:0;background:var(--bg);border-radius:var(--r-md);padding:11px 18px;
+  font-size:.95rem;font-weight:500;box-shadow:var(--raise-s);white-space:nowrap;
+}
+.chip{box-shadow:var(--press)}
+.btn{cursor:pointer;transition:box-shadow .15s;display:inline-flex;align-items:center;gap:8px}
+.btn:active{box-shadow:var(--press)}
+.btn.main{color:var(--accent)}
+.btn svg{width:18px;height:18px}
+
+/* Question cards */
+.list{list-style:none;display:grid;gap:22px}
+.q{
+  position:relative;padding:22px 18px 22px 70px;border-radius:var(--r-xl);box-shadow:var(--raise);
+}
+.num{
+  position:absolute;left:16px;top:18px;width:40px;height:40px;border-radius:50%;
+  display:grid;place-items:center;font-size:.9rem;font-weight:500;color:var(--muted);box-shadow:var(--press);
+}
+.qt{white-space:pre-line;font-size:1.05rem;line-height:1.9;overflow-wrap:anywhere}
+.verb{color:var(--accent);font-weight:600}
+.pill{
+  display:inline-block;min-width:4.6rem;margin:0 4px;padding:0 14px;border-radius:var(--r-sm);
+  box-shadow:var(--raise-s);text-align:center;font-size:.92rem;line-height:1.7;color:var(--muted);
+}
+.pill[data-state="ok"]{color:var(--ok);font-weight:600}
+.pill[data-state="shown"]{color:var(--accent);font-weight:600}
+.pill[data-state="bad"]{color:var(--bad)}
+
+.ans{display:flex;gap:12px;margin-top:14px;align-items:stretch}
+.ans input{
+  flex:1;min-width:0;border:0;background:var(--bg);border-radius:var(--r-md);padding:14px 18px;
+  box-shadow:var(--press);font-size:1rem;
+}
+.ans input::placeholder{color:#8d97b3}
+.ans input[data-state="ok"]{color:var(--ok);box-shadow:var(--press),0 0 0 2px var(--ok)}
+.ans input[data-state="bad"]{color:var(--bad);box-shadow:var(--press),0 0 0 2px var(--bad)}
+.ans input[data-state="shown"]{color:var(--accent);box-shadow:var(--press),0 0 0 2px var(--accent)}
+.ans .btn{flex:none;padding:0 22px;color:var(--accent)}
+
+/* Choices */
+.opts{display:grid;gap:14px;margin-top:18px}
+.opt{
+  display:flex;align-items:center;gap:12px;text-align:left;border:0;cursor:pointer;
+  background:var(--bg);border-radius:var(--r-md);padding:13px 16px;box-shadow:var(--raise-s);
+  font-size:.98rem;transition:box-shadow .15s,color .15s;
+}
+.opt b{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:.8rem;font-weight:600;color:var(--muted);box-shadow:var(--press)}
+.opt:active{box-shadow:var(--press)}
+.opt.ok{box-shadow:var(--press);color:var(--ok)}
+.opt.ok b{color:var(--ok)}
+.opt.bad{box-shadow:var(--press);color:var(--bad)}
+.opt.bad b{color:var(--bad)}
+.opt.shown{box-shadow:var(--press);color:var(--accent)}
+.opt.shown b{color:var(--accent)}
+.opt[disabled]{cursor:default}
+
+.end-row{margin-top:30px;padding:22px 18px;border-radius:var(--r-xl);box-shadow:var(--press)}
+.end-btns{display:grid;grid-template-columns:1fr;gap:14px}
+.end-btns .btn{justify-content:center;padding:14px 18px}
+.result{margin-top:16px;text-align:center;font-weight:500;color:var(--muted);min-height:1.6em}
+@media (min-width:700px){.end-btns{grid-template-columns:repeat(3,1fr)}}
+footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.9rem}
+footer strong{display:block;font-size:1.1rem;color:var(--ink);font-weight:600}
+
+/* Watermark – scattered calligraphy like the Unit 1 page */
+.wm{position:fixed;inset:0;overflow:hidden;pointer-events:none;user-select:none;-webkit-user-select:none;z-index:60}
+.wm span{
+  position:absolute;white-space:nowrap;color:var(--wm);
+  font-family:'Aref Ruqaa','Readex Pro',serif;font-weight:400;font-size:2.1rem;line-height:1;
+  transform-origin:center;
+}
+
+@media (min-width:700px){
+  body{padding-left:24px;padding-right:24px}
+  .top{padding:34px 44px}
+  .top h1{font-size:2.5rem}
+  .dial{width:170px;height:170px}
+  .dial::before{inset:16px}
+  .dial b{font-size:2.5rem}
+  .q{padding:26px 34px 26px 88px}
+  .num{left:30px;top:24px}
+  .opts{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media print{.wm span{color:rgba(0,0,0,.12)}}
+</style>
+</head>
+<body>
+
+<div class="wm" id="wm" aria-hidden="true"></div>
+
+<main class="wrap">
+  <header class="top">
+    <div>
+      <h1>Unit 2 practice</h1>
+      <p>Answer each question to see if you are right straight away. Your progress appears on the dial.</p>
+      <div class="done" id="answered">0 of 0 answered</div>
+    </div>
+    <div class="dial" role="img" aria-label="Correct answers" id="dial">
+      <svg viewBox="0 0 100 100"><circle class="trk" cx="50" cy="50" r="42"/><circle class="bar" id="bar" cx="50" cy="50" r="42"/></svg>
+      <div><b id="score">0</b><small>correct</small></div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" aria-selected="true" aria-controls="p-past" id="t-past">Past Tense<span id="c-past">0/37</span></button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-idioms" id="t-idioms">Success Idioms<span id="c-idioms">0/15</span></button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="p-sym" id="t-sym">Congratulating &amp; Sympathy<span id="c-sym">0/4</span></button>
+  </nav>
+
+  <section class="panel" id="p-past" role="tabpanel" aria-labelledby="t-past"></section>
+  <section class="panel" id="p-idioms" role="tabpanel" aria-labelledby="t-idioms" hidden></section>
+  <section class="panel" id="p-sym" role="tabpanel" aria-labelledby="t-sym" hidden></section>
+
+  <footer>
+    Prepared by
+    <strong>أ. عصام عمايري</strong>
+  </footer>
+</main>
+
+<script>
+/* ---------- Data ---------- */
+const PAST = [
+ ["A: What time (you / wake up) ___ yesterday?\nB: At about ten o'clock.", [["did you wake up"]]],
+ ["A: What (you / do) ___ after you woke up?", [["did you do"]]],
+ ["B: I (watch) ___ news on TV.", [["watched","was watching"]]],
+ ["A: Did anything happen while you (watch) ___ TV?", [["were watching","watched"]]],
+ ["B: Yes, the phone (ring) ___.", [["rang"]]],
+ ["A: What (you / do) ___ when your husband came home?", [["were you doing","did you do"]]],
+ ["B: I (prepare) ___ lunch when he (come) ___.", [["was preparing","prepared"],["came"]]],
+ ["A: Did you and your husband (stay) ___ at home on that day?", [["stay"]]],
+ ["B: No, we (drink) ___ coffee. Then I put on my raincoat, and we (go out) ___ at six o'clock.", [["drank","were drinking"],["went out"]]],
+ ["A: Why (you / put) ___ your raincoat on?", [["did you put"]]],
+ ["B: Because it (rain) ___, of course.", [["was raining"]]],
+ ["The lecture (start) ___ by the time they got there.", [["had started"]]],
+ ["A few weeks ago, a woman (call) ___ to report a robbery at her house.", [["called"]]],
+ ["I (have) ___ a wonderful biology teacher. Her name was Mrs. Wilson.", [["had"]]],
+ ["The program that was stopped (work) ___ well since 1945.", [["had been working","had worked"]]],
+ ["Somehow her enthusiasm inspired me, and I (start) ___ to like biology.", [["started"]]],
+ ["When she came into the room, the burglar (already / leave) ___.", [["had already left","had left already"]]],
+ ["Mrs. Wilson (make) ___ us excited about the subject because she was so interested herself.", [["made"]]],
+ ["On their tour to Britain last year, they (stay) ___ in London for a few days. Then they (visit) ___ Cambridge.", [["stayed"],["visited"]]],
+ ["I remember one lesson in biology; we (study) ___ different types of plants, and the teacher was describing the types of flower.", [["were studying"]]],
+ ["It happened at four in the afternoon when she (watch) ___ news on TV.", [["was watching"]]],
+ ["I knew her because I (visit) ___ her several times.", [["had visited"]]],
+ ["We (not / know) ___ what to do first, but it certainly made us think.", [["did not know"]]],
+ ["They (go) ___ to Cambridge before, but they liked it so much that they (decide) ___ to go back.", [["had been","had gone"],["decided"]]],
+ ["The burglar came in through the front door, (pick up) ___ the woman's handbag, emptied it out and (steal) ___ her purse.", [["picked up"],["stole"]]],
+ ["I looked terrible when I (see) ___ Joe last night because I (run) ___ for over an hour and I was exhausted.", [["saw"],["had been running"]]],
+ ["Times were hard and the family (struggle) ___ for some time.", [["struggled","were struggling"]]],
+ ["She picked up a tulip, and then suddenly we (notice) ___ that she (cry) ___.", [["noticed"],["was crying"]]],
+ ["When I (hear) ___ the noise at the window, I knew that someone (try) ___ to break into the house.", [["heard"],["was trying","had been trying"]]],
+ ["She (apologise) ___ and (say) ___ that sometimes nature was so beautiful that it just made her cry.", [["apologised","apologized"],["said"]]],
+ ["By the time I got to the meeting they (discuss) ___ the important issues and they (make) ___ the big decisions without me.", [["had discussed"],["had made"]]],
+ ["Maha (play) ___ the guitar when her father came home.", [["was playing"]]],
+ ["I (feel) ___ annoyed that they hadn't waited for me.", [["felt"]]],
+ ["The enemy retreated to the sea after he (defeat) ___.", [["had been defeated","was defeated","had defeated","defeated"]]],
+ ["She (work) ___ as a waitress for three years when he met her.", [["had been working","had worked"]]],
+ ["When I arrived, my brother (play) ___ computer games.", [["was playing"]]],
+ ["He (buy) ___ all the ingredients he needed from the supermarket and then (go) ___ home to make her birthday cake.", [["bought","had bought"],["went"]]]
+];
+
+const IDIOMS = [
+ {q:"His efforts didn’t work at all; his project is ___.", o:["dead in the water","on a roll"], a:0},
+ {q:"“If you ___ your math test, you can go to the party,” said her parents.", o:["join","ace"], a:1},
+ {q:"I think we are ___; our team has won ten out of our twelve matches this season.", o:["dead in the water","on a roll"], a:1},
+ {q:"Don’t ___ the wrong horse. I think he will lose the match.", o:["ace","back"], a:1},
+ {q:"Thousands of young people ___ the unemployed each summer when they leave school.", o:["join the ranks of","dead in"], a:0},
+ {q:"If you study hard enough, you will be able to ___ with no troubles.", o:["join the ranks","ace the test"], a:1},
+ {q:"You really ___ when you picked that swimmer to win the race.", o:["backed the wrong horse","dead in the water"], a:0},
+ {q:"I didn’t get the results I was hoping for in my exams. My dream of going to Cambridge University is ___.", o:["on a roll","dead in the water"], a:1},
+ {q:"In a few years our company should be able to ___ the world’s most developed nations.", o:["join the ranks of","ace the"], a:0},
+ {q:"This is our fifth win in the game! We are ___. If we keep this up, we are sure to make it to the state championship game!", o:["on a roll","ace the test"], a:0},
+ {q:"Their companies went ___ before they reached a great economic recovery.", o:["on vacation","out the agreement","on war","bankrupt"], a:3},
+ {q:"Edison ___ useless methods until he finally succeeded.", o:["eliminated","involved","forgot","adopted"], a:0},
+ {q:"Failures are often considered a ___ of success in all areas of life.", o:["mistake","enemy","friend","stepping-stone"], a:3},
+ {q:"He retired after failing as an ___ employee.", o:["great","insurance","inventing","weak"], a:1},
+ {q:"He obtained ___ for inventing new things.", o:["time","goods","patents","followers"], a:2}
+];
+
+const SYM = [
+ {q:"Your school team has won the final in a football competition in your area.", o:["Congratulations!","I'm sorry about what happened","I'm sure this won't happen again","I've no doubt that you'll do much better next time"], a:0},
+ {q:"You are in a hospital visiting a friend who has broken his leg.", o:["Congratulations!","I'm sorry about what happened","You really deserve this honor","Very well done! Keep it up"], a:1},
+ {q:"Your little brother has got low marks in the exam.", o:["Congratulations!","I've no doubt that you'll do much better next time","You really deserve this honor","Very well done! Keep it up"], a:1},
+ {q:"Your father has got a new promotion at work.", o:["You really deserve this honor","I've no doubt that you'll do much better next time","I'm sorry about what happened","You mustn't let this depress you"], a:0}
+];
+
+/* ---------- Helpers ---------- */
+const $ = s => document.querySelector(s);
+const make = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+const norm = s => s.toLowerCase().replace(/[’‘`]/g,"'").replace(/n't\b/g," not").replace(/[.,!?]/g,"").replace(/\s+/g," ").trim();
+const LETTERS = ['a','b','c','d'];
+const ICON_RESET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>';
+
+function toolbar(panel, hintText, buttons){
+  const row = make('div','bar-row');
+  row.append(make('p','hint',hintText));
+  const chip = make('span','chip'); chip.dataset.chip = '1';
+  row.append(chip);
+  buttons.forEach(b => row.append(b));
+  return row;
+}
+function btn(label, cls, onclick, icon){
+  const b = make('button','btn' + (cls ? ' ' + cls : ''));
+  b.type = 'button';
+  if (icon) b.insertAdjacentHTML('beforeend', icon);
+  b.append(document.createTextNode(label));
+  b.onclick = onclick;
+  return b;
+}
+function endBar(onCheck, onShow, onReset){
+  const wrap = make('div','end-row');
+  const row = make('div','end-btns');
+  row.append(
+    btn('Check answers','main', onCheck),
+    btn('Start over','', onReset, ICON_RESET),
+    btn('Show answers','', onShow)
+  );
+  const res = make('p','result');
+  res.setAttribute('aria-live','polite');
+  wrap.append(row, res);
+  return wrap;
+}
+function showResult(panel){
+  const s = stats(panel);
+  const left = s.total - s.answered;
+  panel.querySelector('.result').textContent =
+    'You got ' + s.ok + ' of ' + s.total + ' correct' + (left > 0 ? ' · ' + left + ' not answered yet' : '') + '.';
+}
+function clearResult(panel){ const r = panel.querySelector('.result'); if (r) r.textContent = ''; }
+function addRich(p, text){
+  text.split(/(\([^)]*\))/).forEach(seg => {
+    if (/^\(.*\)$/.test(seg)) p.append(make('span','verb',seg));
+    else if (seg) p.append(document.createTextNode(seg));
+  });
+}
+
+/* ---------- Fill-in ---------- */
+function buildPast(panel){
+  panel.innerHTML = '';
+  const list = make('ol','list');
+  const check = (inp) => {
+    const v = norm(inp.value);
+    if (!v) { setState(inp, ''); return; }
+    const alts = JSON.parse(inp.dataset.answers).map(norm);
+    setState(inp, alts.includes(v) ? 'ok' : 'bad');
+  };
+  const setState = (inp, st) => {
+    inp.dataset.state = st;
+    inp._pill.dataset.state = st;
+    if (st === 'ok') { inp._pill.textContent = inp.value.trim(); inp.readOnly = true; }
+    else if (st !== 'shown') inp._pill.textContent = '......';
+  };
+
+  PAST.forEach(([t, ans], i) => {
+    const li = make('li','q');
+    li.append(make('span','num', i + 1));
+    const p = make('p','qt');
+    const inputs = [];
+    t.split('___').forEach((part, k, arr) => {
+      addRich(p, part);
+      if (k < arr.length - 1) {
+        const pill = make('span','pill','......');
+        p.append(pill);
+        const inp = make('input');
+        inp.type = 'text';
+        inp.placeholder = arr.length > 2 ? 'Answer ' + (k + 1) : 'Type your answer';
+        inp.autocomplete = 'off'; inp.autocapitalize = 'off'; inp.spellcheck = false;
+        inp.setAttribute('autocorrect','off');
+        inp.setAttribute('aria-label', 'Answer ' + (i + 1) + (arr.length > 2 ? '.' + (k + 1) : ''));
+        inp.dataset.unit = '1';
+        inp.dataset.answers = JSON.stringify(ans[k]);
+        inp._pill = pill;
+        inp.addEventListener('input', () => { setState(inp, ''); refresh(); });
+        inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); check(inp); refresh(); } });
+        inputs.push(inp);
+      }
+    });
+    li.append(p);
+    inputs.forEach(inp => {
+      const row = make('div','ans');
+      const c = btn('Check','', () => { check(inp); refresh(); });
+      row.append(inp, c);
+      li.append(row);
+    });
+    list.append(li);
+  });
+
+  const doCheck = () => { panel.querySelectorAll('.ans input').forEach(check); refresh(); showResult(panel); };
+  const doShow = () => {
+    panel.querySelectorAll('.ans input').forEach(inp => {
+      if (inp.dataset.state === 'ok') return;
+      const a = JSON.parse(inp.dataset.answers)[0];
+      inp.value = a; inp._pill.textContent = a;
+      inp.dataset.state = 'shown'; inp._pill.dataset.state = 'shown'; inp.readOnly = true;
+    });
+    refresh(); clearResult(panel);
+  };
+  const doReset = () => { buildPast(panel); refresh(); panel.scrollIntoView({block:'start'}); };
+  panel.append(
+    toolbar(panel, 'Correct the verb between brackets. Type the full answer and press Enter. In questions, include the subject (for example: are you working).',
+      [btn('Check all','main',doCheck), btn('Show answers','',doShow), btn('Start over','',doReset,ICON_RESET)]),
+    list,
+    endBar(doCheck, doShow, doReset)
+  );
+}
+
+/* ---------- Multiple choice ---------- */
+function buildChoice(panel, items, hintText){
+  panel.innerHTML = '';
+  const list = make('ol','list');
+  items.forEach((it, i) => {
+    const li = make('li','q');
+    li.dataset.unit = '1';
+    li.append(make('span','num', i + 1));
+    const p = make('p','qt');
+    let slot = null;
+    if (it.q.includes('___')) {
+      const [a, b] = it.q.split('___');
+      slot = make('span','pill','......');
+      p.append(document.createTextNode(a), slot, document.createTextNode(b));
+    } else p.textContent = it.q;
+    li.append(p);
+    const opts = make('div','opts');
+    it.o.forEach((txt, k) => {
+      const b = make('button','opt');
+      b.type = 'button';
+      b.append(make('b','',LETTERS[k]), make('span','',txt));
+      b.onclick = () => {
+        if (li.dataset.state === 'ok' || li.dataset.state === 'shown') return;
+        li.dataset.tried = '1';
+        if (k === it.a) {
+          li.dataset.state = 'ok';
+          b.classList.add('ok');
+          if (slot) { slot.textContent = txt; slot.dataset.state = 'ok'; }
+          opts.querySelectorAll('.opt').forEach(x => x.disabled = true);
+        } else {
+          b.classList.add('bad'); b.disabled = true;
+          if (slot) { slot.textContent = txt; slot.dataset.state = 'bad'; }
+        }
+        refresh();
+      };
+      opts.append(b);
+    });
+    li.append(opts);
+    list.append(li);
+  });
+
+  const doCheck = () => { refresh(); showResult(panel); };
+  const doShow = () => {
+    list.querySelectorAll('.q').forEach((li, i) => {
+      if (li.dataset.state === 'ok') return;
+      const it = items[i];
+      li.dataset.state = 'shown';
+      li.querySelectorAll('.opt').forEach((b, k) => { b.disabled = true; b.classList.remove('bad'); b.classList.toggle('shown', k === it.a); });
+      const slot = li.querySelector('.pill');
+      if (slot) { slot.textContent = it.o[it.a]; slot.dataset.state = 'shown'; }
+    });
+    refresh(); clearResult(panel);
+  };
+  const doReset = () => { buildChoice(panel, items, hintText); refresh(); panel.scrollIntoView({block:'start'}); };
+  panel.append(
+    toolbar(panel, hintText, [btn('Show answers','',doShow), btn('Start over','',doReset,ICON_RESET)]),
+    list,
+    endBar(doCheck, doShow, doReset)
+  );
+}
+
+/* ---------- Score ---------- */
+const CIRC = 2 * Math.PI * 42;
+const bar = $('#bar');
+bar.style.strokeDasharray = CIRC;
+const PANELS = [['past','#p-past'],['idioms','#p-idioms'],['sym','#p-sym']];
+function stats(root){
+  const units = [...root.querySelectorAll('[data-unit]')];
+  return {
+    total: units.length,
+    ok: units.filter(u => u.dataset.state === 'ok').length,
+    answered: units.filter(u => u.dataset.state === 'ok' || u.dataset.state === 'bad' || u.dataset.tried).length
+  };
+}
+function refresh(){
+  const all = stats(document);
+  $('#score').textContent = all.ok;
+  $('#answered').textContent = all.answered + ' of ' + all.total + ' answered';
+  bar.style.strokeDashoffset = CIRC * (1 - (all.total ? all.ok / all.total : 0));
+  PANELS.forEach(([k, sel]) => {
+    const p = $(sel), s = stats(p);
+    $('#c-' + k).textContent = s.ok + '/' + s.total;
+    const chip = p.querySelector('[data-chip]');
+    if (chip) chip.textContent = 'Correct ' + s.ok + ' of ' + s.total;
+  });
+}
+
+/* ---------- Tabs ---------- */
+const tabs = document.querySelectorAll('.tab');
+tabs.forEach(tab => tab.addEventListener('click', () => {
+  tabs.forEach(t => {
+    const on = t === tab;
+    t.setAttribute('aria-selected', on);
+    document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}));
+
+/* ---------- Watermark: staggered calligraphy, slight tilt variations ---------- */
+function drawWatermark(){
+  const wm = $('#wm');
+  wm.innerHTML = '';
+  const W = innerWidth, H = innerHeight;
+  const dx = Math.max(210, Math.min(W * 0.34, 320)), dy = Math.max(130, Math.min(H * 0.17, 190));
+  const cols = Math.ceil(W / dx) + 2, rows = Math.ceil(H / dy) + 2;
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let r = -1; r < rows; r++) {
+    for (let c = -1; c < cols; c++) {
+      const s = document.createElement('span');
+      s.lang = 'ar'; s.dir = 'rtl';
+      s.textContent = 'أ. عصام عمايري';
+      const x = c * dx + (r % 2 ? dx / 2 : 0) + (rnd() - .5) * 40;
+      const y = r * dy + (rnd() - .5) * 30;
+      s.style.left = x + 'px';
+      s.style.top = y + 'px';
+      s.style.transform = 'rotate(' + (-20 + (rnd() - .5) * 12).toFixed(1) + 'deg)';
+      wm.append(s);
+    }
+  }
+}
+let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(drawWatermark, 200); });
+
+/* ---------- Init ---------- */
+buildPast($('#p-past'));
+buildChoice($('#p-idioms'), IDIOMS, 'Choose the correct phrasal verb or idiom. A wrong pick can be tried again.');
+buildChoice($('#p-sym'), SYM, 'Choose the best response for each situation.');
+drawWatermark();
+refresh();
+</script>
+</body>
+</html>
